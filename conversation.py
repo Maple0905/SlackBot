@@ -88,6 +88,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     print(target_token)
                     print(target_channel_id)
                     print(file_info['file']['id'])
+                    print(file_res['files'][index]['id'])
                     print(file_info)
                     target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
 
