@@ -31,6 +31,21 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
+async def fileUpload(client, channel, text, file_path, ts) :
+    if ts == '' :
+        client.files_upload_v2(
+            channel=channel,
+            initial_comment=text,
+            file=file_path,
+        )
+    else :
+        client.files_upload_v2(
+            channel=channel,
+            initial_comment=text,
+            file=file_path,
+            thread_ts=ts
+        )
+
 async def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
     new_messages = []
     for message in messages :
@@ -72,14 +87,15 @@ async def rePost(source_token, target_token, source_channel_id, target_channel_i
                 else :
                     text = ''
 
-                try :
-                    file_res = target_client.files_upload_v2(
-                        channel=target_channel_id,
-                        initial_comment=text,
-                        file=file_path,
-                    )
-                except Exception as e :
-                    print({e})
+                await fileUpload(target_client, target_channel_id, text, file_path, '')
+                # try :
+                #     file_res = target_client.files_upload_v2(
+                #         channel=target_channel_id,
+                #         initial_comment=text,
+                #         file=file_path,
+                #     )
+                # except Exception as e :
+                #     print({e})
 
                 # target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
                 try :
@@ -196,15 +212,16 @@ async def rePostThreads(source_token, target_token, source_channel_id, target_ch
                             else :
                                 text = ''
 
-                            try :
-                                file_res = target_client.files_upload_v2(
-                                    channel=target_channel_id,
-                                    initial_comment=text,
-                                    file=file_path,
-                                    thread_ts=repost_ts
-                                )
-                            except Exception as e :
-                                print({e})
+                            await fileUpload(target_client, target_channel_id, text, file_path, repost_ts)
+                            # try :
+                            #     file_res = target_client.files_upload_v2(
+                            #         channel=target_channel_id,
+                            #         initial_comment=text,
+                            #         file=file_path,
+                            #         thread_ts=repost_ts
+                            #     )
+                            # except Exception as e :
+                            #     print({e})
 
                             try :
                                 os.remove(file_path)
