@@ -79,8 +79,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                         initial_comment=text,
                         file=file_path,
                     )
-                    print(file_res)
-                    # uploaded_file_res.append(file_res)
+                    uploaded_file_res.append(file_res['file'])
                 except Exception as e :
                     print({e})
 
