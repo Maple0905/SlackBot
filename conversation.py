@@ -51,6 +51,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             icon_url = response['profile']['image_original']
 
         if 'files' in message :
+            print('file')
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
                 file_name = file['name']
@@ -91,6 +92,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             # DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
             # DB_CONN.commit()
         else :
+            print('not file')
             response = target_client.chat_postMessage(
                 channel=target_channel_id,
                 text=message['text'],
