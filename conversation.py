@@ -51,8 +51,8 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             icon_url = response['profile']['image_original']
 
         if 'files' in message :
-            len = len(message['files'])
-            print('file len : ', len)
+            files_len = len(message['files'])
+            print('file len : ', files_len)
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
                 file_name = file['name']
@@ -81,9 +81,9 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print({e})
 
-                if index == len - 1 and 'public' in file_res['files'][index]['shares'] :
+                if index == files_len - 1 and 'public' in file_res['files'][index]['shares'] :
                     target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
-                elif index == len - 1 and 'public' not in file_res['files'][index]['shares'] :
+                elif index == files_len - 1 and 'public' not in file_res['files'][index]['shares'] :
                     file_res = target_client.files_info(file=file_res['files'][index]['id'])
                     target_ts = file_res['file']['shares']['public'][target_channel_id][0]['ts']
 
@@ -94,7 +94,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
 
-            if index == len - 1 :
+            if index == files_len - 1 :
                 query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
                 DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
                 DB_CONN.commit()
