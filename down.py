@@ -5,11 +5,11 @@ import time
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-POST_TOKEN = "xoxb-5753499915335-5817255615845-R50JmykAGgD0GiwLbfg3U3kP"
-POST_BOT_TOKEN = "xoxb-5753499915335-5817255615845-R50JmykAGgD0GiwLbfg3U3kP"
+POST_TOKEN = "xoxb-5753499915335-5817255615845-oWoYAAQgIP9aPQnADGxDEa3Y"
+POST_BOT_TOKEN = "xoxb-5753499915335-5817255615845-oWoYAAQgIP9aPQnADGxDEa3Y"
 
-RETRIEVE_TOKEN = "xoxb-5780675552945-5813548988070-NcUNgioipzR0uayyRhZSyU6T"
-RETRIEVE_BOT_TOKEN = "xoxb-5780675552945-5813548988070-NcUNgioipzR0uayyRhZSyU6T"
+RETRIEVE_TOKEN = "xoxb-5780675552945-5813548988070-ZeYiHZUBv1k4CHQUFf0fIACF"
+RETRIEVE_BOT_TOKEN = "xoxb-5780675552945-5813548988070-ZeYiHZUBv1k4CHQUFf0fIACF"
 
 POST_CHANNEL_ID = "C05P9MY0JV6"
 RETRIEVE_CHANNEL_ID = "C05NKTPNQPM"
@@ -60,6 +60,7 @@ try :
                     initial_comment=text,
                     file=file_path,
                 )
+                uploaded_file_res.append(result['file'])
 
                 try :
                     os.remove(file_path)
