@@ -200,6 +200,7 @@ async def rePostThreads(source_token, target_token, source_channel_id, target_ch
                                 file_url,
                                 headers={'Authorization': 'Bearer ' + source_token}
                             )
+                            print(file_res.status_code)
 
                             file_path = os.getcwd() + '/uploads/' + file_name
                             if file_res.status_code == 200 :
