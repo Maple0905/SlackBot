@@ -53,6 +53,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
         if 'files' in message :
             files_len = len(message['files'])
             print('file len : ', files_len)
+            uploaded_file_res = []
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
                 file_name = file['name']
@@ -78,6 +79,8 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                         initial_comment=text,
                         file=file_path,
                     )
+                    print(file_res)
+                    # uploaded_file_res.append(file_res)
                 except Exception as e :
                     print({e})
 
@@ -88,8 +91,8 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
             
-            latest_file = message['files'][0]
-            for file in message['files'] :
+            latest_file = uploaded_file_res[0]
+            for file in uploaded_file_res :
                 if latest_file['timestamp'] < file['timestamp'] :
                     latest_file = file
 
