@@ -56,7 +56,7 @@ async def rePost(source_token, target_token, source_channel_id, target_channel_i
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
                 file_name = file['name']
-                file_res = await requests.get(
+                file_res = requests.get(
                     file_url,
                     headers={'Authorization': 'Bearer ' + source_token}
                 )
@@ -73,7 +73,7 @@ async def rePost(source_token, target_token, source_channel_id, target_channel_i
                     text = ''
 
                 try :
-                    file_res = await target_client.files_upload_v2(
+                    file_res = target_client.files_upload_v2(
                         channel=target_channel_id,
                         initial_comment=text,
                         file=file_path,
@@ -94,7 +94,7 @@ async def rePost(source_token, target_token, source_channel_id, target_channel_i
             # DB_CONN.commit()
         else :
             print('not file')
-            response = await target_client.chat_postMessage(
+            response = target_client.chat_postMessage(
                 channel=target_channel_id,
                 text=message['text'],
                 icon_url=icon_url,
@@ -197,7 +197,7 @@ async def rePostThreads(source_token, target_token, source_channel_id, target_ch
                                 text = ''
 
                             try :
-                                file_res = await target_client.files_upload_v2(
+                                file_res = target_client.files_upload_v2(
                                     channel=target_channel_id,
                                     initial_comment=text,
                                     file=file_path,
@@ -213,7 +213,7 @@ async def rePostThreads(source_token, target_token, source_channel_id, target_ch
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
                     else :
-                        repost_response = await target_client.chat_postMessage(
+                        repost_response = target_client.chat_postMessage(
                             channel=target_channel_id,
                             thread_ts=repost_ts,
                             text=repost_message['text'],
