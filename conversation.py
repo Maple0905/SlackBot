@@ -84,9 +84,12 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 if index == files_len - 1 and 'public' in file_res['files'][index]['shares'] :
                     target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
                 elif index == files_len - 1 and 'public' not in file_res['files'][index]['shares'] :
-                    file_res = target_client.files_info(file=file_res['files'][index]['id'])
-                    print(file_res)
-                    target_ts = file_res['file']['shares']['public'][target_channel_id][0]['ts']
+                    file_info = target_client.files_info(file=file_res['files'][index]['id'])
+                    print(target_token)
+                    print(target_channel_id)
+                    print(file_info['file']['id'])
+                    print(file_info)
+                    target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
 
                 try :
                     os.remove(file_path)
