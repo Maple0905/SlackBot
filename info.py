@@ -16,7 +16,7 @@ SOURCE_CLIENT = WebClient(token=SOURCE_BOT_TOKEN)
 TARGET_CLIENT = WebClient(token=TARGET_BOT_TOKEN)
 
 try :
-    info = TARGET_CLIENT.files_info(file="F05PYCAEMN2")
+    info = TARGET_CLIENT.files_info(file="F05QUNVEMK2")
     print(info)
 
 except Exception as e :
