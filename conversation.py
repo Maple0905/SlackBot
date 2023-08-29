@@ -79,7 +79,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print({e})
 
-                target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
+                # target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
                 try :
                     os.remove(file_path)
                 except FileNotFoundError :
@@ -87,9 +87,9 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
 
-            query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
-            DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
-            DB_CONN.commit()
+            # query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
+            # DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
+            # DB_CONN.commit()
         else :
             response = target_client.chat_postMessage(
                 channel=target_channel_id,
