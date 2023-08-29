@@ -89,7 +89,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     print(f"{file_path} not found !")
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
-            
+
             latest_file = uploaded_file_res[0]
             for file in uploaded_file_res :
                 if latest_file['timestamp'] < file['timestamp'] :
