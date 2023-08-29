@@ -81,23 +81,21 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print({e})
 
-                if index == files_len - 1 and 'public' in file_res['files'][index]['shares'] :
-                    target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
-                elif index == files_len - 1 and 'public' not in file_res['files'][index]['shares'] :
-                    file_info = target_client.files_info(file=file_res['files'][index]['id'])
-                    print(target_token)
-                    print(target_channel_id)
-                    print(file_info['file']['id'])
-                    print(file_res['files'][index]['id'])
-                    print(file_info)
-                    target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
-
                 try :
                     os.remove(file_path)
                 except FileNotFoundError :
                     print(f"{file_path} not found !")
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
+            
+            latest_file = message['files'][0]
+            for file in message['files'] :
+                if latest_file['timestamp'] < file['timestamp'] :
+                    latest_file = file
+
+            file_info = target_client.files_info(file=latest_file['id'])
+            print(latest_file['id'])
+            target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
 
             if index == files_len - 1 :
                 query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
