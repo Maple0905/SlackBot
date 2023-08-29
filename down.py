@@ -72,9 +72,9 @@ try :
                 if latest_file['timestamp'] < file['timestamp'] :
                     latest_file = file
 
-            print(latest_file)
-            file_info = TARGET_CLIENT.files_info(file=latest_file['id'])
             print(latest_file['id'])
+            file_info = TARGET_CLIENT.files_info(file=latest_file['id'])
+            print(file_info)
             target_ts = file_info['file']['shares']['public']['C05NKTPNQPM'][0]['ts']
 
         else :
