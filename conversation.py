@@ -31,6 +31,8 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
+log = open('log.txt', 'w+')
+
 async def fileUpload(client, channel, text, file_path, ts) :
     if ts == '' :
         client.files_upload_v2(
@@ -303,7 +305,6 @@ async def syncMessage(source_token, target_token) :
                 await getThreadMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
 
 async def main() :
-    log = open('log.txt', 'w+')
     await syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     await syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
     log.close()
