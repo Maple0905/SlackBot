@@ -35,7 +35,6 @@ try :
             print('file len : ', files_len)
             uploaded_file_res = []
             for index, file in enumerate(message['files']):
-                print(index)
                 file_url = file['url_private']
                 file_name = file['name']
                 file_res = requests.get(
@@ -61,16 +60,6 @@ try :
                     initial_comment=text,
                     file=file_path,
                 )
-                print(result)
-                end = time.time()
-                # ts = file['shares']['public']['C05NKTPNQPM'][0]['ts']
-                ts = result['files'][index]['shares']['public']['C05NKTPNQPM'][0]['ts']
-
-                print("start : ", start)
-                print("end : ", end)
-                print("ts : ", ts)
-                print("duration start and ts : ", float(ts) - start)
-                print("duration ts and end : ", end - float(ts))
 
                 try :
                     os.remove(file_path)
