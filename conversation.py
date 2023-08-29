@@ -1,6 +1,7 @@
 import os
 import pymysql
 import requests
+import asyncio
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -30,7 +31,7 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
-def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
+async def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
     new_messages = []
     for message in messages :
         if 'client_msg_id' in message :
@@ -55,7 +56,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
                 file_name = file['name']
-                file_res = requests.get(
+                file_res = await requests.get(
                     file_url,
                     headers={'Authorization': 'Bearer ' + source_token}
                 )
@@ -72,7 +73,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     text = ''
 
                 try :
-                    file_res = target_client.files_upload_v2(
+                    file_res = await target_client.files_upload_v2(
                         channel=target_channel_id,
                         initial_comment=text,
                         file=file_path,
@@ -93,7 +94,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             # DB_CONN.commit()
         else :
             print('not file')
-            response = target_client.chat_postMessage(
+            response = await target_client.chat_postMessage(
                 channel=target_channel_id,
                 text=message['text'],
                 icon_url=icon_url,
@@ -104,7 +105,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], response['ts']))
             DB_CONN.commit()
 
-def getMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
+async def getMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
     source_client = WebClient(token=source_token)
 
     try :
@@ -137,13 +138,13 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
             query = "UPDATE message_last_status SET last_msg_id = %s WHERE source_channel_id = %s AND target_channel_id = %s AND is_thread = 0"
             DB_CURSOR.execute(query, (last_message['client_msg_id'], source_channel_id, target_channel_id))
             if response[0][3] is not None and response[0][3] != last_message['client_msg_id'] :
-                rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
+                await rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
         DB_CONN.commit()
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
 
-def rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, latest_thread_ts) :
+async def rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, latest_thread_ts) :
     source_client = WebClient(token=source_token)
     target_client = WebClient(token=target_token)
 
@@ -196,7 +197,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 text = ''
 
                             try :
-                                file_res = target_client.files_upload_v2(
+                                file_res = await target_client.files_upload_v2(
                                     channel=target_channel_id,
                                     initial_comment=text,
                                     file=file_path,
@@ -212,7 +213,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
                     else :
-                        repost_response = target_client.chat_postMessage(
+                        repost_response = await target_client.chat_postMessage(
                             channel=target_channel_id,
                             thread_ts=repost_ts,
                             text=repost_message['text'],
@@ -221,7 +222,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                         )
                         assert repost_response["message"]["text"] == repost_message['text']
 
-def getThreadMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
+async def getThreadMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
     source_client = WebClient(token=source_token)
 
     try :
@@ -258,13 +259,13 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             query = "UPDATE message_last_status SET last_thread_ts = %s WHERE source_channel_id = %s AND target_channel_id = %s AND is_thread = 1"
             DB_CURSOR.execute(query, (latest_thread_ts, source_channel_id, target_channel_id))
             if response[0][4] is not None and latest_thread_ts > response[0][4]  :
-                rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, response[0][4])
+                await rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, response[0][4])
         DB_CONN.commit()
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
 
-def syncMessage(source_token, target_token) :
+async def syncMessage(source_token, target_token) :
     source_client = WebClient(token=source_token)
     target_client = WebClient(token=target_token)
 
@@ -278,11 +279,11 @@ def syncMessage(source_token, target_token) :
     for source_channel in source_channel_list :
         for target_channel in target_channel_list :
             if source_channel['name'] == target_channel['name'] :
-                getMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
-                getThreadMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
+                await getMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
+                await getThreadMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
 
-def main() :
-    syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
-    syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
+async def main() :
+    await syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
+    await syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
 
-main()
+asyncio.run(main())
