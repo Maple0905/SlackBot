@@ -5,13 +5,13 @@ import time
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-POST_TOKEN = "xoxb-5753499915335-5801233296276-DWo8x1soZ0qj6cLgbbD2FUdC"
-POST_BOT_TOKEN = "xoxb-5753499915335-5801233296276-DWo8x1soZ0qj6cLgbbD2FUdC"
+POST_TOKEN = "xoxb-5753499915335-5801233296276-NbCHssGcWNzhQUvnqUxIzLLb"
+POST_BOT_TOKEN = "xoxb-5753499915335-5801233296276-NbCHssGcWNzhQUvnqUxIzLLb"
 
 print(time.time())
 
-RETRIEVE_TOKEN = "xoxb-5780675552945-5812548008481-fzVyuABFpEQnOnQ9G9S3pMKv"
-RETRIEVE_BOT_TOKEN = "xoxb-5780675552945-5812548008481-fzVyuABFpEQnOnQ9G9S3pMKv"
+RETRIEVE_TOKEN = "xoxb-5780675552945-5812548008481-3SYhjXABqUHXWaBoGJ23RCoS"
+RETRIEVE_BOT_TOKEN = "xoxb-5780675552945-5812548008481-3SYhjXABqUHXWaBoGJ23RCoS"
 
 POST_CHANNEL_ID = "C05P9MY0JV6"
 RETRIEVE_CHANNEL_ID = "C05NKTPNQPM"
@@ -55,12 +55,17 @@ try :
                     text = message['text']
 
                 start = time.time()
-                result = RETRIEVE_CLIENT.files_upload_v2(
-                    channel=RETRIEVE_CHANNEL_ID,
-                    initial_comment=text,
-                    file=file_path,
-                )
-                print(result)
+
+                try :
+                    result = RETRIEVE_CLIENT.files_upload_v2(
+                        channel=RETRIEVE_CHANNEL_ID,
+                        initial_comment=text,
+                        file=file_path,
+                    )
+                    print(result)
+                except Exception as e :
+                    print({e})
+
                 end = time.time()
                 # ts = file['shares']['public']['C05NKTPNQPM'][0]['ts']
                 ts = result['files'][index]['shares']['public']['C05NKTPNQPM'][0]['ts']
