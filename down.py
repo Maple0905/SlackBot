@@ -66,16 +66,18 @@ try :
                     print(f"{file_path} not found !")
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
-                
-            latest_file = uploaded_file_res[0]
-            for file in uploaded_file_res :
-                if latest_file['timestamp'] < file['timestamp'] :
-                    latest_file = file
 
-            print(latest_file['id'])
-            file_info = TARGET_CLIENT.files_info(file=latest_file['id'])
-            print(file_info)
-            target_ts = file_info['file']['shares']['public']['C05NKTPNQPM'][0]['ts']
+            print(uploaded_file_res)
+
+            # latest_file = uploaded_file_res[0]
+            # for file in uploaded_file_res :
+            #     if latest_file['timestamp'] < file['timestamp'] :
+            #         latest_file = file
+
+            # print(latest_file['id'])
+            # file_info = TARGET_CLIENT.files_info(file=latest_file['id'])
+            # print(file_info)
+            # target_ts = file_info['file']['shares']['public']['C05NKTPNQPM'][0]['ts']
 
         else :
             result = TARGET_CLIENT.chat_postMessage(
