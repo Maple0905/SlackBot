@@ -76,6 +76,7 @@ async def rePost(source_token, target_token, source_channel_id, target_channel_i
                     headers={'Authorization': 'Bearer ' + source_token}
                 )
                 print(file_res.status_code)
+                log.write(file_res.status_code)
 
                 file_path = os.getcwd() + '/uploads/' + file_name
                 if file_res.status_code == 200 :
@@ -302,7 +303,9 @@ async def syncMessage(source_token, target_token) :
                 await getThreadMessageHistory(source_token, target_token, source_channel['id'], target_channel['id'])
 
 async def main() :
+    log = open('log.txt', 'w+')
     await syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     await syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
+    log.close()
 
 asyncio.run(main())
