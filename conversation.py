@@ -85,6 +85,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     target_ts = file_res['files'][index]['shares']['public'][target_channel_id][0]['ts']
                 elif index == files_len - 1 and 'public' not in file_res['files'][index]['shares'] :
                     file_res = target_client.files_info(file=file_res['files'][index]['id'])
+                    print(file_res)
                     target_ts = file_res['file']['shares']['public'][target_channel_id][0]['ts']
 
                 try :
