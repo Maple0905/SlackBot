@@ -4,30 +4,28 @@ import time
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+from dotenv import load_dotenv
 
-POST_TOKEN = "xoxb-5817745880085-5806145535847-7QirBhixifN36OKKqArxhJ1C"
-POST_BOT_TOKEN = "xoxb-5817745880085-5806145535847-7QirBhixifN36OKKqArxhJ1C"
+load_dotenv()
 
-RETRIEVE_TOKEN = "xoxb-5844384647568-5806162001111-y4ODRLtXVEZ8s8ewL1YgyXAa"
-RETRIEVE_BOT_TOKEN = "xoxb-5844384647568-5806162001111-y4ODRLtXVEZ8s8ewL1YgyXAa"
+SOURCE_BOT_TOKEN = os.getenv("SOURCE_BOT_TOKEN")
+TARGET_BOT_TOKEN = os.getenv("TARGET_BOT_TOKEN")
 
 POST_CHANNEL_ID = "C05Q4GNK69H"
 RETRIEVE_CHANNEL_ID = "C05Q1NHUGBX"
 
-POST_CLIENT = WebClient(token=POST_TOKEN)
-POST_BOT_CLIENT = WebClient(token=POST_BOT_TOKEN)
-RETRIEVE_CLIENT = WebClient(token=RETRIEVE_TOKEN)
-RETRIEVE_BOT_CLIENT = WebClient(token=RETRIEVE_BOT_TOKEN)
+SOURCE_CLIENT = WebClient(token=SOURCE_BOT_TOKEN)
+TARGET_CLIENT = WebClient(token=TARGET_BOT_TOKEN)
 
 try :
-    response = POST_CLIENT.conversations_history(
+    response = SOURCE_CLIENT.conversations_history(
         channel=POST_CHANNEL_ID,
         limit=1
     )
     messages = response['messages']
 
     for message in messages :
-        response = POST_CLIENT.users_profile_get(user=message['user'])
+        response = SOURCE_CLIENT.users_profile_get(user=message['user'])
         display_name = response["profile"]["real_name"]
         print(display_name, ' ', message['text'])
         if 'files' in message :
@@ -39,7 +37,7 @@ try :
                 file_name = file['name']
                 file_res = requests.get(
                     file_url,
-                    headers={'Authorization': 'Bearer ' + POST_BOT_TOKEN}
+                    headers={'Authorization': 'Bearer ' + SOURCE_BOT_TOKEN}
                 )
                 file_path = os.getcwd() + '/' + file_name
 
@@ -55,7 +53,7 @@ try :
                     text = message['text']
 
                 start = time.time()
-                result = RETRIEVE_CLIENT.files_upload_v2(
+                result = TARGET_CLIENT.files_upload_v2(
                     channel=RETRIEVE_CHANNEL_ID,
                     initial_comment=text,
                     file=file_path,
@@ -75,12 +73,12 @@ try :
                     latest_file = file
 
             print(latest_file)
-            file_info = RETRIEVE_CLIENT.files_info(file=latest_file['id'])
+            file_info = TARGET_CLIENT.files_info(file=latest_file['id'])
             print(latest_file['id'])
             target_ts = file_info['file']['shares']['public']['C05NKTPNQPM'][0]['ts']
 
         else :
-            result = RETRIEVE_BOT_CLIENT.chat_postMessage(
+            result = TARGET_CLIENT.chat_postMessage(
                 channel=RETRIEVE_CHANNEL_ID,
                 text=message['text']
             )
