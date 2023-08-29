@@ -93,6 +93,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 if latest_file['timestamp'] < file['timestamp'] :
                     latest_file = file
 
+            print(latest_file)
             file_info = target_client.files_info(file=latest_file['id'])
             print(latest_file['id'])
             target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
