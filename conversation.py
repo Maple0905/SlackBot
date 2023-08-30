@@ -99,6 +99,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             file_info = target_client.files_info(file=latest_file['id'])
             print(latest_file['id'])
             target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
+            print(index)
 
             if index == files_len - 1 :
                 query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
