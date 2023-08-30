@@ -66,7 +66,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     headers={'Authorization': 'Bearer ' + source_token}
                 )
 
-                file_path = os.getcwd() + '/uploads/' + file_name
+                file_path = '/var/www/SlackBot/uploads/' + file_name
                 if file_res.status_code == 200 :
                     with open(file_path, 'wb') as f :
                         f.write(file_res.content)
@@ -201,7 +201,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 headers={'Authorization': 'Bearer ' + source_token}
                             )
 
-                            file_path = os.getcwd() + '/uploads/' + file_name
+                            file_path = '/var/www/SlackBot/uploads/' + file_name
                             if file_res.status_code == 200 :
                                 with open(file_path, 'wb') as f :
                                     f.write(file_res.content)
