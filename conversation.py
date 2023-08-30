@@ -31,7 +31,8 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
-log = open('log.txt', 'w+')
+log_path = os.getcwd() + '/log.txt'
+log = open(log_path, 'w+')
 
 def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
     log.write('repost' + '\n')
@@ -303,7 +304,8 @@ def main() :
     syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
     log.close()
-    file_test = open("test.txt", 'a+')
+    path = os.getcwd() + '/' + 'test.txt'
+    file_test = open(path, 'a+')
     file_test.close()
 
 main()
