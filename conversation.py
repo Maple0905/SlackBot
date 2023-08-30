@@ -34,7 +34,7 @@ DB_CURSOR = DB_CONN.cursor()
 log = open('log.txt', 'w+')
 
 def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
-    log.write('repost')
+    log.write('repost' + '\n')
     new_messages = []
     for message in messages :
         if 'client_msg_id' in message :
@@ -120,7 +120,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             DB_CONN.commit()
 
 def getMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
-    log.write('message history')
+    log.write('message history' + '\n')
     source_client = WebClient(token=source_token)
 
     try :
@@ -282,7 +282,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
         print(f"Error posting message: {e.response['error']}")
 
 def syncMessage(source_token, target_token) :
-    log.write('sync')
+    log.write('sync' + '\n')
     source_client = WebClient(token=source_token)
     target_client = WebClient(token=target_token)
 
@@ -302,5 +302,6 @@ def syncMessage(source_token, target_token) :
 def main() :
     syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
+    log.close()
 
 main()
