@@ -303,5 +303,7 @@ def main() :
     syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
     log.close()
+    file_test = open("test.txt", 'a+')
+    file_test.close()
 
 main()
