@@ -53,7 +53,6 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
 
         if 'files' in message :
             files_len = len(message['files'])
-            print('file len : ', files_len)
             uploaded_file_res = []
             for index, file in enumerate(message['files']) :
                 file_url = file['url_private']
@@ -92,17 +91,13 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                     print(f"An error occurred while deleting the file : {e}")
 
             time.sleep(5)
-
             latest_file = uploaded_file_res[0]
             for file in uploaded_file_res :
                 if latest_file['timestamp'] < file['timestamp'] :
                     latest_file = file
 
-            print(latest_file)
             file_info = target_client.files_info(file=latest_file['id'])
-            print(latest_file['id'])
             target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
-            print(index)
 
             if index == files_len - 1 :
                 query = "INSERT INTO conversation ( source_channel_id, target_channel_id, source_ts, target_ts ) VALUES ( %s, %s, %s, %s )"
@@ -200,7 +195,6 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 file_url,
                                 headers={'Authorization': 'Bearer ' + source_token}
                             )
-                            print(file_res.status_code)
 
                             file_path = os.getcwd() + '/uploads/' + file_name
                             if file_res.status_code == 200 :
