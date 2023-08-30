@@ -31,7 +31,10 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
+f = open('log.txt', 'w+')
+
 def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
+    f.write('repost')
     new_messages = []
     for message in messages :
         if 'client_msg_id' in message :
@@ -117,6 +120,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             DB_CONN.commit()
 
 def getMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
+    f.write('message history')
     source_client = WebClient(token=source_token)
 
     try :
@@ -278,6 +282,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
         print(f"Error posting message: {e.response['error']}")
 
 def syncMessage(source_token, target_token) :
+    f.write('sync')
     source_client = WebClient(token=source_token)
     target_client = WebClient(token=target_token)
 
