@@ -225,6 +225,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 print(f"{file_path} not found !")
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
+                            time.sleep(5)
                     else :
                         repost_response = target_client.chat_postMessage(
                             channel=target_channel_id,
