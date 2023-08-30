@@ -196,7 +196,9 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 headers={'Authorization': 'Bearer ' + source_token}
                             )
 
+                            print(file_res)
                             file_path = os.getcwd() + '/uploads/' + file_name
+                            print(file_path)
                             if file_res.status_code == 200 :
                                 with open(file_path, 'wb') as f :
                                     f.writable(file_res.content)
