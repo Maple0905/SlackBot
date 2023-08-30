@@ -201,7 +201,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             print(file_path)
                             if file_res.status_code == 200 :
                                 with open(file_path, 'wb') as f :
-                                    f.writable(file_res.content)
+                                    f.write(file_res.content)
 
                             display_text = '*@' + display_name + '* mentioned. :mega:'
                             if index == 0 :
