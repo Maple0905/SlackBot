@@ -31,11 +31,7 @@ DB_CONN = pymysql.connect(
 
 DB_CURSOR = DB_CONN.cursor()
 
-log_path = os.getcwd() + '/log.txt'
-log = open(log_path, 'r+')
-
 def rePost(source_token, target_token, source_channel_id, target_channel_id, messages, last_client_msg_id) :
-    log.write('repost' + '\n')
     new_messages = []
     for message in messages :
         if 'client_msg_id' in message :
@@ -94,7 +90,7 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
                 except Exception as e :
                     print(f"An error occurred while deleting the file : {e}")
 
-            time.sleep(5)
+            time.sleep(6)
             latest_file = uploaded_file_res[0]
             for file in uploaded_file_res :
                 if latest_file['timestamp'] < file['timestamp'] :
@@ -121,7 +117,6 @@ def rePost(source_token, target_token, source_channel_id, target_channel_id, mes
             DB_CONN.commit()
 
 def getMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
-    log.write('message history' + '\n')
     source_client = WebClient(token=source_token)
 
     try :
@@ -228,7 +223,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 print(f"{file_path} not found !")
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
-                            time.sleep(5)
+                            time.sleep(6)
                     else :
                         repost_response = target_client.chat_postMessage(
                             channel=target_channel_id,
@@ -283,7 +278,6 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
         print(f"Error posting message: {e.response['error']}")
 
 def syncMessage(source_token, target_token) :
-    log.write('sync' + '\n')
     source_client = WebClient(token=source_token)
     target_client = WebClient(token=target_token)
 
@@ -303,9 +297,5 @@ def syncMessage(source_token, target_token) :
 def main() :
     syncMessage(SOURCE_BOT_TOKEN, TARGET_BOT_TOKEN)
     syncMessage(TARGET_BOT_TOKEN, SOURCE_BOT_TOKEN)
-    log.close()
-    path = os.getcwd() + '/' + 'test.txt'
-    file_test = open(path, 'a')
-    file_test.close()
 
 main()
