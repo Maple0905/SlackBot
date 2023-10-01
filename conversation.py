@@ -150,6 +150,26 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
             DB_CURSOR.execute(query, (last_message['client_msg_id'], source_channel_id, target_channel_id))
             if response[0][3] is not None and response[0][3] != last_message['client_msg_id'] :
                 rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
+
+            edit_messages = []
+            for message in messages :
+                if 'client_msg_id' in message :
+                    if 'edited' in message :
+                        edit_messages.append(message)
+
+            if len(edit_messages) != 0 :
+                target_client = WebClient(token=target_token)
+                for message in edit_messages :
+                    query = "SELECT * FROM conversation WHERE source_ts = %s AND source_channel_id = %s"
+                    DB_CURSOR.execute(query, (message['ts'], source_channel_id))
+                    response = DB_CURSOR.fetchall()
+                    if len(response) != 0 :
+                        target_client.chat_update(
+                            channel=target_channel_id,
+                            ts=response[0][4],
+                            text=message['text']
+                        )
+
         DB_CONN.commit()
 
     except SlackApiError as e:
