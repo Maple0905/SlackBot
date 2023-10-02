@@ -278,13 +278,14 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 print(f"{file_path} not found !")
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
-
                         time.sleep(6)
                         latest_file = uploaded_file_res[0]
                         for file in uploaded_file_res :
                             if latest_file['timestamp'] < file['timestamp'] :
                                 latest_file = file
                         file_info = target_client.files_info(file=latest_file['id'])
+                        print('id : ', latest_file['id'])
+                        print(file_info)
                         target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
 
                         if index == files_len - 1 :
