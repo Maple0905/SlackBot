@@ -359,9 +359,9 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                         if len(response) != 0 :
                             display_text = '*@' + display_name + '* mentioned. :mega:'
                             if 'files' in message :
-                                text = display_text + '\n' + message['text']
+                                text = display_text + '\n' + repost_thread_message['text']
                             else :
-                                text = message['text']
+                                text = repost_thread_message['text']
                             target_client.chat_update(
                                 channel=target_channel_id,
                                 ts=response[0][6],
