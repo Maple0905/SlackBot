@@ -155,7 +155,7 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
 
             target_client = WebClient(token=target_token)
             # Add reaction
-            last_client_msg_id = messages[0]['client_msg_id']
+            last_client_msg_id = response[0][3]
             for message in messages :
                 if 'client_msg_id' in message :
                     if message['client_msg_id'] == last_client_msg_id :
@@ -166,6 +166,8 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         response = DB_CURSOR.fetchall()
                         DB_CONN.commit()
                         if len(response) != 0 :
+                            print(response[0][4])
+                            print(message['reactions']['0']['name'])
                             target_client.reactions_add(
                                 channel=target_channel_id,
                                 name=message['reactions']['0']['name'],
