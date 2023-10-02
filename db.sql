@@ -27,7 +27,7 @@ CREATE TABLE `conversation` (
   `source_ts` varchar(32) DEFAULT NULL,
   `target_ts` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=172 DEFAULT CHARSET=utf8mb4;
 
 /*Table structure for table `message_last_status` */
 
@@ -41,7 +41,22 @@ CREATE TABLE `message_last_status` (
   `last_thread_ts` varchar(32) DEFAULT NULL,
   `is_thread` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=280 DEFAULT CHARSET=utf8mb4;
+
+/*Table structure for table `thread_conversation` */
+
+DROP TABLE IF EXISTS `thread_conversation`;
+
+CREATE TABLE `thread_conversation` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `source_channel_id` varchar(32) DEFAULT NULL,
+  `target_channel_id` varchar(32) DEFAULT NULL,
+  `source_message_ts` varchar(32) DEFAULT NULL,
+  `target_message_ts` varchar(32) DEFAULT NULL,
+  `source_thread_ts` varchar(32) DEFAULT NULL,
+  `target_thread_ts` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
