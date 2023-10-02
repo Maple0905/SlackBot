@@ -347,6 +347,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             for message in thread_messages :
                 if message['latest_reply'] > response[0][4] :
                     new_thread_messages.append(message)
+            print('new : ', new_thread_messages)
             for thread_message in new_thread_messages :
                 thread_response = source_client.conversations_replies(
                     channel=source_channel_id,
@@ -361,6 +362,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                     repost_ts = response[0][4]
                     for repost_thread_message in repost_thread_messages :
                         if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
+                            print('new thread message : ', repost_thread_message)
                             user_response = source_client.users_profile_get(user=repost_thread_message['user'])
                             display_name = user_response["profile"]["real_name"]
                             query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
