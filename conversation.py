@@ -193,10 +193,8 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                 DB_CURSOR.execute(query)
                 responses = DB_CURSOR.fetchall()
                 DB_CONN.commit()
-                print(responses)
                 if len(responses) != 0 :
                     for response in responses :
-                        print(response)
                         query = "DELETE FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
                         DB_CURSOR.execute(query, (source_channel_id, response[3]))
                         DB_CONN.commit()
@@ -334,8 +332,8 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                 rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, response[0][4])
 
         target_client = WebClient(token=target_token)
-        #Edit Thread Message
         for thread_message in thread_messages :
+            # Edit Thread Message
             thread_response = source_client.conversations_replies(
                 channel=source_channel_id,
                 ts=thread_message['thread_ts'],
@@ -346,9 +344,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             if (len(response)) == 0 :
                 continue
             else :
-                repost_ts = response[0][4]
                 for repost_thread_message in repost_thread_messages :
-                    print('new thread message : ', repost_thread_message)
                     if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
                         user_response = source_client.users_profile_get(user=repost_thread_message['user'])
                         display_name = user_response["profile"]["real_name"]
@@ -367,6 +363,30 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                 ts=response[0][6],
                                 text=text
                             )
+
+            # Delete Thread Message
+            live_thread_messages = []
+            for repost_thread_message in repost_thread_messages :
+                if 'parent_user_id' in repost_thread_message :
+                    live_thread_messages.append(repost_thread_message)
+            deleted_thread_messages = None
+            if len(live_thread_messages) != 0 :
+                deleted_thread_messages = ', '.join(live_thread_messages)
+            if deleted_thread_messages is not None :
+                query = f"SELECT * FROM thread_conversation WHERE source_channel_id = '{source_channel_id}' AND source_message_ts = '{thread_message['thread_ts']}' AND source_thread_ts NOT IN ({deleted_thread_messages})"
+                DB_CURSOR.execute(query)
+                responses = DB_CURSOR.fetchall()
+                DB_CONN.commit()
+                if len(responses) != 0 :
+                    for response in responses :
+                        query = "DELETE FROM thread_conversation WHERE source_channel_id = %s AND source_message_ts = %s AND source_thread_ts = %s"
+                        DB_CURSOR.execute(query, (source_channel_id, thread_message['thread_ts'], response[5]))
+                        DB_CONN.commit()
+                        target_client.chat_delete(
+                            channel=target_channel_id,
+                            ts=response[6],
+                            as_user=True
+                        )
         DB_CONN.commit()
 
     except SlackApiError as e:
