@@ -288,10 +288,10 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                         target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
                         print(target_ts)
 
-                        # if index == files_len - 1 :
-                        #     query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s, %s, %s )"
-                        #     DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
-                        #     DB_CONN.commit()
+                        if index == files_len - 1 :
+                            query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s, %s, %s )"
+                            DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['thread_ts'], repost_ts, repost_message['ts'], target_ts))
+                            DB_CONN.commit()
                     else :
                         repost_response = target_client.chat_postMessage(
                             channel=target_channel_id,
