@@ -10,9 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SOURCE_BOT_TOKEN = os.getenv("SOURCE_BOT_TOKEN")
-SOURCE_USER_TOKEN = os.getenv("SOURCE_USER_TOKEN")
 TARGET_BOT_TOKEN = os.getenv("TARGET_BOT_TOKEN")
-TARGET_USER_TOKEN = os.getenv("TARGET_USER_TOKEN")
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -155,6 +153,7 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
             if response[0][3] is not None and response[0][3] != last_message['client_msg_id'] :
                 rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
 
+            target_client = WebClient(token=target_token)
             # Edit Message
             edit_messages = []
             for message in messages :
@@ -162,7 +161,6 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                     if 'edited' in message :
                         edit_messages.append(message)
             if len(edit_messages) != 0 :
-                target_client = WebClient(token=target_token)
                 for message in edit_messages :
                     response = source_client.users_profile_get(user=message['user'])
                     display_name = response["profile"]["real_name"]
@@ -183,10 +181,6 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         )
 
             # Delete Message
-            if target_token == TARGET_BOT_TOKEN :
-                target_user_client = WebClient(token=TARGET_USER_TOKEN)
-            if target_token == SOURCE_BOT_TOKEN :
-                target_user_client = WebClient(token=SOURCE_USER_TOKEN)
             live_messages = []
             for message in messages :
                 if 'client_msg_id' in message :
@@ -206,9 +200,10 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         query = "DELETE FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
                         DB_CURSOR.execute(query, (source_channel_id, response[3]))
                         DB_CONN.commit()
-                        target_user_client.chat_delete(
+                        target_client.chat_delete(
                             channel=target_channel_id,
-                            ts=response[4]
+                            ts=response[4],
+                            as_user=True
                         )
 
     except SlackApiError as e:
@@ -338,16 +333,8 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             if response[0][4] is not None and latest_thread_ts > response[0][4]  :
                 rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, response[0][4])
 
-        if target_token == TARGET_BOT_TOKEN :
-            target_user_client = WebClient(token=TARGET_USER_TOKEN)
-        if target_token == SOURCE_BOT_TOKEN :
-            target_user_client = WebClient(token=SOURCE_USER_TOKEN)
+        target_client = WebClient(token=target_token)
         #Edit Thread Message
-        # new_thread_messages = []
-        # for message in thread_messages :
-        #     if message['latest_reply'] > response[0][4] :
-        #         new_thread_messages.append(message)
-        # print('new : ', new_thread_messages)
         for thread_message in thread_messages :
             thread_response = source_client.conversations_replies(
                 channel=source_channel_id,
@@ -375,7 +362,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                 text = display_text + '\n' + message['text']
                             else :
                                 text = message['text']
-                            target_user_client.chat_update(
+                            target_client.chat_update(
                                 channel=target_channel_id,
                                 ts=response[0][6],
                                 text=text
