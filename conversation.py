@@ -368,7 +368,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             live_thread_messages = []
             for repost_thread_message in repost_thread_messages :
                 if 'parent_user_id' in repost_thread_message :
-                    live_thread_messages.append(repost_thread_message)
+                    live_thread_messages.append(repost_thread_message['ts'])
             deleted_thread_messages = None
             if len(live_thread_messages) != 0 :
                 deleted_thread_messages = ', '.join(live_thread_messages)
