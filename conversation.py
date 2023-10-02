@@ -167,12 +167,13 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         edit_messages.append(message)
             if len(edit_messages) != 0 :
                 for message in edit_messages :
+                    target_client = WebClient(token=target_token)
                     query = "SELECT * FROM conversation WHERE source_ts = %s AND source_channel_id = %s"
                     DB_CURSOR.execute(query, (message['ts'], source_channel_id))
                     response = DB_CURSOR.fetchall()
                     DB_CONN.commit()
                     if len(response) != 0 :
-                        target_user_client.chat_update(
+                        target_client.chat_update(
                             channel=target_channel_id,
                             ts=response[0][4],
                             text=message['text']
