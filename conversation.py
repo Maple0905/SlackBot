@@ -291,7 +291,11 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             icon_url=icon_url,
                             username=display_name
                         )
+                        print(repost_response)
                         assert repost_response["message"]["text"] == repost_message['text']
+                        query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s )"
+                        DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['thread_ts'], repost_ts, repost_message['ts'], repost_response['ts']))
+                        DB_CONN.commit()
 
 def getThreadMessageHistory(source_token, target_token, source_channel_id, target_channel_id) :
     source_client = WebClient(token=source_token)
@@ -326,12 +330,51 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
         if len(response) == 0 :
             query = "INSERT INTO message_last_status ( source_channel_id, target_channel_id, last_msg_id, last_thread_ts, is_thread ) VALUES ( %s, %s, NULL, %s, 1 )"
             DB_CURSOR.execute(query, ( source_channel_id, target_channel_id, latest_thread_ts ))
+            DB_CONN.commit()
         else :
             query = "UPDATE message_last_status SET last_thread_ts = %s WHERE source_channel_id = %s AND target_channel_id = %s AND is_thread = 1"
             DB_CURSOR.execute(query, (latest_thread_ts, source_channel_id, target_channel_id))
+            DB_CONN.commit()
             if response[0][4] is not None and latest_thread_ts > response[0][4]  :
                 rePostThreads(source_token, target_token, source_channel_id, target_channel_id, thread_messages, response[0][4])
-        DB_CONN.commit()
+
+            if target_token == TARGET_BOT_TOKEN :
+                target_user_client = WebClient(token=TARGET_USER_TOKEN)
+            if target_token == SOURCE_BOT_TOKEN :
+                target_user_client = WebClient(token=SOURCE_USER_TOKEN)
+            #Edit Thread Message
+            for thread_message in thread_messages :
+                thread_response = source_client.conversations_replies(
+                    channel=source_channel_id,
+                    ts=thread_message['thread_ts'],
+                )
+                repost_thread_messages = thread_response['messages']
+                DB_CURSOR.execute("SELECT * FROM conversation WHERE source_ts = %s", thread_message['thread_ts'])
+                response = DB_CURSOR.fetchall()
+                if (len(response)) == 0 :
+                    continue
+                else :
+                    repost_ts = response[0][4]
+                    for repost_thread_message in repost_thread_messages :
+                        if 'parent_user_id' in repost_thread_message :
+                            user_response = source_client.users_profile_get(user=repost_thread_message['user'])
+                            display_name = user_response["profile"]["real_name"]
+                            query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
+                            DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
+                            response = DB_CURSOR.fetchall()
+                            DB_CONN.commit()
+                            if len(response) != 0 :
+                                display_text = '*@' + display_name + '* mentioned. :mega:'
+                                if 'files' in message :
+                                    text = display_text + '\n' + message['text']
+                                else :
+                                    text = message['text']
+                                target_user_client.chat_update(
+                                    channel=target_channel_id,
+                                    ts=response[0][6],
+                                    text=text
+                                )
+
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
