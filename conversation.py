@@ -286,7 +286,6 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 latest_file = file
                         file_info = target_client.files_info(file=latest_file['id'])
                         target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
-                        print(target_ts)
 
                         if index == files_len - 1 :
                             query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s, %s, %s )"
@@ -300,7 +299,6 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             icon_url=icon_url,
                             username=display_name
                         )
-                        print(source_channel_id, ' ', target_channel_id, ' ', message['thread_ts'], ' ', repost_ts, ' ', repost_message['ts'], ' ', repost_response['ts'])
                         assert repost_response["message"]["text"] == repost_message['text']
                         query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s, %s, %s )"
                         DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['thread_ts'], repost_ts, repost_message['ts'], repost_response['ts']))
@@ -361,21 +359,18 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                 continue
             else :
                 for repost_thread_message in repost_thread_messages :
-                    print(repost_thread_message['text'])
                     if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
                         user_response = source_client.users_profile_get(user=repost_thread_message['user'])
                         display_name = user_response["profile"]["real_name"]
                         query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
                         DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
                         response = DB_CURSOR.fetchall()
-                        print('response : ', response)
                         if len(response) != 0 :
                             display_text = '*@' + display_name + '* mentioned. :mega:'
                             if 'files' in message :
                                 text = display_text + '\n' + repost_thread_message['text']
                             else :
                                 text = repost_thread_message['text']
-                            print(text)
                             target_client.chat_update(
                                 channel=target_channel_id,
                                 ts=response[0][6],
