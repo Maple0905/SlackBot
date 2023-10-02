@@ -161,11 +161,8 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         query = "SELECT * FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
                         DB_CURSOR.execute(query, (source_channel_id, message['ts']))
                         response = DB_CURSOR.fetchall()
-                        print(response)
                         DB_CONN.commit()
                         if len(response) != 0 :
-                            print(response[0][4])
-                            print(message)
                             target_client.reactions_add(
                                 channel=target_channel_id,
                                 name=message['reactions'][0]['name'],
@@ -300,8 +297,6 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             if latest_file['timestamp'] < file['timestamp'] :
                                 latest_file = file
                         file_info = target_client.files_info(file=latest_file['id'])
-                        print('id : ', latest_file['id'])
-                        print(file_info)
                         target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
 
                         if index == files_len - 1 :
