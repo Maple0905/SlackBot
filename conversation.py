@@ -369,7 +369,6 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                 query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
                                 DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
                                 response = DB_CURSOR.fetchall()
-                                DB_CONN.commit()
                                 if len(response) != 0 :
                                     display_text = '*@' + display_name + '* mentioned. :mega:'
                                     if 'files' in message :
@@ -382,6 +381,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                         ts=response[0][6],
                                         text=text
                                     )
+                DB_CONN.commit()
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
