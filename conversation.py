@@ -343,7 +343,11 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             if target_token == SOURCE_BOT_TOKEN :
                 target_user_client = WebClient(token=SOURCE_USER_TOKEN)
             #Edit Thread Message
-            for thread_message in thread_messages :
+            new_thread_messages = []
+            for message in thread_messages :
+                if message['latest_reply'] > response[0][4] :
+                    new_thread_messages.append(message)
+            for thread_message in new_thread_messages :
                 thread_response = source_client.conversations_replies(
                     channel=source_channel_id,
                     ts=thread_message['thread_ts'],
@@ -375,7 +379,6 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                     ts=response[0][6],
                                     text=text
                                 )
-
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
