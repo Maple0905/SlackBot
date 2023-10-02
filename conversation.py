@@ -240,6 +240,8 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                         icon_url = user_response['profile']['image_original']
 
                     if 'files' in repost_message :
+                        files_len = len(repost_message['files'])
+                        uploaded_file_res = []
                         for index, file in enumerate(repost_message['files']) :
                             file_url = file['url_private']
                             file_name = file['name']
@@ -266,6 +268,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                     file=file_path,
                                     thread_ts=repost_ts
                                 )
+                                uploaded_file_res.append(file_res['file'])
                             except Exception as e :
                                 print({e})
 
@@ -275,7 +278,20 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                                 print(f"{file_path} not found !")
                             except Exception as e :
                                 print(f"An error occurred while deleting the file : {e}")
-                            time.sleep(6)
+
+                        time.sleep(6)
+                        latest_file = uploaded_file_res[0]
+                        for file in uploaded_file_res :
+                            if latest_file['timestamp'] < file['timestamp'] :
+                                latest_file = file
+                        file_info = target_client.files_info(file=latest_file['id'])
+                        target_ts = file_info['file']['shares']['public'][target_channel_id][0]['ts']
+                        print(target_ts)
+
+                        # if index == files_len - 1 :
+                        #     query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s, %s, %s )"
+                        #     DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['ts'], target_ts))
+                        #     DB_CONN.commit()
                     else :
                         repost_response = target_client.chat_postMessage(
                             channel=target_channel_id,
