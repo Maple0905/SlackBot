@@ -155,7 +155,6 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
 
             target_client = WebClient(token=target_token)
             # Add reaction
-            last_client_msg_id = response[0][3]
             for message in messages :
                 if 'client_msg_id' in message :
                     if 'reactions' in message :
@@ -377,23 +376,34 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                 continue
             else :
                 for repost_thread_message in repost_thread_messages :
-                    if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
-                        user_response = source_client.users_profile_get(user=repost_thread_message['user'])
-                        display_name = user_response["profile"]["real_name"]
-                        query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
-                        DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
-                        response = DB_CURSOR.fetchall()
-                        if len(response) != 0 :
-                            display_text = '*@' + display_name + '* mentioned. :mega:'
-                            if 'files' in message :
-                                text = display_text + '\n' + repost_thread_message['text']
-                            else :
-                                text = repost_thread_message['text']
-                            target_client.chat_update(
-                                channel=target_channel_id,
-                                ts=response[0][6],
-                                text=text
-                            )
+                    if 'parent_user_id' in repost_thread_message :
+                        if 'reactions' in repost_thread_message :
+                            query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
+                            DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
+                            response = DB_CURSOR.fetchall()
+                            if len(response) != 0 :
+                                target_client.reactions_add(
+                                    channel=target_channel_id,
+                                    name=repost_thread_message['reactions'][0]['name'],
+                                    timestamp=response[0][6]
+                                )
+                        if 'edited' in repost_thread_message :
+                            user_response = source_client.users_profile_get(user=repost_thread_message['user'])
+                            display_name = user_response["profile"]["real_name"]
+                            query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
+                            DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
+                            response = DB_CURSOR.fetchall()
+                            if len(response) != 0 :
+                                display_text = '*@' + display_name + '* mentioned. :mega:'
+                                if 'files' in message :
+                                    text = display_text + '\n' + repost_thread_message['text']
+                                else :
+                                    text = repost_thread_message['text']
+                                target_client.chat_update(
+                                    channel=target_channel_id,
+                                    ts=response[0][6],
+                                    text=text
+                                )
 
             # Delete Thread Message
             live_thread_messages = []
