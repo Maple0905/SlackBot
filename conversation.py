@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SOURCE_BOT_TOKEN = os.getenv("SOURCE_BOT_TOKEN")
+SOURCE_USER_TOKEN = os.getenv("SOURCE_USER_TOKEN")
 TARGET_BOT_TOKEN = os.getenv("TARGET_BOT_TOKEN")
+TARGET_USER_TOKEN = os.getenv("TARGET_USER_TOKEN")
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -145,24 +147,27 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
         if len(response) == 0 :
             query = "INSERT INTO message_last_status ( source_channel_id, target_channel_id, last_msg_id, last_thread_ts, is_thread ) VALUES ( %s, %s, %s, NULL, 0 )"
             DB_CURSOR.execute(query, ( source_channel_id, target_channel_id, last_message['client_msg_id'] ))
+            DB_CONN.commit()
         else :
             query = "UPDATE message_last_status SET last_msg_id = %s WHERE source_channel_id = %s AND target_channel_id = %s AND is_thread = 0"
             DB_CURSOR.execute(query, (last_message['client_msg_id'], source_channel_id, target_channel_id))
+            DB_CONN.commit()
             if response[0][3] is not None and response[0][3] != last_message['client_msg_id'] :
                 rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
 
+            # Edit Message
             edit_messages = []
             for message in messages :
                 if 'client_msg_id' in message :
                     if 'edited' in message :
                         edit_messages.append(message)
-
             if len(edit_messages) != 0 :
                 target_client = WebClient(token=target_token)
                 for message in edit_messages :
                     query = "SELECT * FROM conversation WHERE source_ts = %s AND source_channel_id = %s"
                     DB_CURSOR.execute(query, (message['ts'], source_channel_id))
                     response = DB_CURSOR.fetchall()
+                    DB_CONN.commit()
                     if len(response) != 0 :
                         target_client.chat_update(
                             channel=target_channel_id,
@@ -170,7 +175,34 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                             text=message['text']
                         )
 
-        DB_CONN.commit()
+            # Delete Message
+            if target_token == TARGET_BOT_TOKEN :
+                target_user_client = WebClient(token=TARGET_USER_TOKEN)
+            if target_token == SOURCE_BOT_TOKEN :
+                target_user_client = WebClient(token=SOURCE_USER_TOKEN)
+            live_messages = []
+            for message in messages :
+                if 'client_msg_id' in message :
+                    live_messages.append(message['ts'])
+            deleted_messages = None
+            if len(live_messages) != 0 :
+                deleted_messages = ', '.join(live_messages)
+            if deleted_messages is not None :
+                query = f"SELECT * FROM conversation WHERE source_channel_id = '{source_channel_id}' AND source_ts NOT IN ({deleted_messages})"
+                DB_CURSOR.execute(query)
+                responses = DB_CURSOR.fetchall()
+                DB_CONN.commit()
+                print(responses)
+                if len(responses) != 0 :
+                    for response in responses :
+                        print(response)
+                        query = "DELETE FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
+                        DB_CURSOR.execute(query, (source_channel_id, response[3]))
+                        DB_CONN.commit()
+                        target_user_client.chat_delete(
+                            channel=target_channel_id,
+                            ts=response[4]
+                        )
 
     except SlackApiError as e:
         print(f"Error posting message: {e.response['error']}")
