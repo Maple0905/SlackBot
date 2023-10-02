@@ -155,10 +155,6 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
             if response[0][3] is not None and response[0][3] != last_message['client_msg_id'] :
                 rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
 
-            if target_token == TARGET_BOT_TOKEN :
-                target_user_client = WebClient(token=TARGET_USER_TOKEN)
-            if target_token == SOURCE_BOT_TOKEN :
-                target_user_client = WebClient(token=SOURCE_USER_TOKEN)
             # Edit Message
             edit_messages = []
             for message in messages :
@@ -166,20 +162,31 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                     if 'edited' in message :
                         edit_messages.append(message)
             if len(edit_messages) != 0 :
+                target_client = WebClient(token=target_token)
                 for message in edit_messages :
-                    target_client = WebClient(token=target_token)
+                    response = source_client.users_profile_get(user=message['user'])
+                    display_name = response["profile"]["real_name"]
                     query = "SELECT * FROM conversation WHERE source_ts = %s AND source_channel_id = %s"
                     DB_CURSOR.execute(query, (message['ts'], source_channel_id))
                     response = DB_CURSOR.fetchall()
                     DB_CONN.commit()
                     if len(response) != 0 :
+                        display_text = '*@' + display_name + '* mentioned. :mega:'
+                        if 'files' in message :
+                            text = display_text + '\n' + message['text']
+                        else :
+                            text = message['text']
                         target_client.chat_update(
                             channel=target_channel_id,
                             ts=response[0][4],
-                            text=message['text']
+                            text=text
                         )
 
             # Delete Message
+            if target_token == TARGET_BOT_TOKEN :
+                target_user_client = WebClient(token=TARGET_USER_TOKEN)
+            if target_token == SOURCE_BOT_TOKEN :
+                target_user_client = WebClient(token=SOURCE_USER_TOKEN)
             live_messages = []
             for message in messages :
                 if 'client_msg_id' in message :
