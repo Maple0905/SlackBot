@@ -166,7 +166,7 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                         DB_CONN.commit()
                         if len(response) != 0 :
                             print(response[0][4])
-                            print(message['reactions']['0']['name'])
+                            print(message)
                             target_client.reactions_add(
                                 channel=target_channel_id,
                                 name=message['reactions']['0']['name'],
