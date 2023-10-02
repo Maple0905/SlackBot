@@ -313,6 +313,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
         if len(thread_messages) == 0 :
             return
 
+        print(thread_messages)
         latest_thread_ts = thread_messages[0]['latest_reply']
         for message in thread_messages :
             if latest_thread_ts < message['latest_reply'] :
