@@ -160,7 +160,7 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                 if 'client_msg_id' in message :
                     if message['client_msg_id'] == last_client_msg_id :
                         break
-                    else :
+                    elif 'reactions' in message :
                         query = "SELECT * FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
                         DB_CURSOR.execute(query, (source_channel_id, message['ts']))
                         response = DB_CURSOR.fetchall()
