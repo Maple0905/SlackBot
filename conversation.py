@@ -291,7 +291,7 @@ def rePostThreads(source_token, target_token, source_channel_id, target_channel_
                             icon_url=icon_url,
                             username=display_name
                         )
-                        print(repost_response)
+                        print(source_channel_id, ' ', target_channel_id, ' ', message['thread_ts'], ' ', repost_ts, ' ', repost_message['ts'], ' ', repost_response['ts'])
                         assert repost_response["message"]["text"] == repost_message['text']
                         query = "INSERT INTO thread_conversation ( source_channel_id, target_channel_id, source_message_ts, target_message_ts, source_thread_ts, target_thread_ts ) VALUES ( %s, %s, %s, %s )"
                         DB_CURSOR.execute(query, (source_channel_id, target_channel_id, message['thread_ts'], repost_ts, repost_message['ts'], repost_response['ts']))
