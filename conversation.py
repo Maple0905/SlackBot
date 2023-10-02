@@ -354,7 +354,6 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                 ts=thread_message['thread_ts'],
             )
             repost_thread_messages = thread_response['messages']
-            print('new thread message content : ', repost_thread_messages)
             DB_CURSOR.execute("SELECT * FROM conversation WHERE source_ts = %s", thread_message['thread_ts'])
             response = DB_CURSOR.fetchall()
             if (len(response)) == 0 :
@@ -362,20 +361,20 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
             else :
                 repost_ts = response[0][4]
                 for repost_thread_message in repost_thread_messages :
+                    print('new thread message : ', repost_thread_message)
                     if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
-                        print('new thread message : ', repost_thread_message)
                         user_response = source_client.users_profile_get(user=repost_thread_message['user'])
                         display_name = user_response["profile"]["real_name"]
                         query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
                         DB_CURSOR.execute(query, (thread_message['thread_ts'], source_channel_id, repost_thread_message['ts']))
                         response = DB_CURSOR.fetchall()
+                        print('response : ', response)
                         if len(response) != 0 :
                             display_text = '*@' + display_name + '* mentioned. :mega:'
                             if 'files' in message :
                                 text = display_text + '\n' + message['text']
                             else :
                                 text = message['text']
-                            print(target_channel_id, ' ', response[0][6], ' ', text)
                             target_user_client.chat_update(
                                 channel=target_channel_id,
                                 ts=response[0][6],
