@@ -169,7 +169,7 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                             print(message)
                             target_client.reactions_add(
                                 channel=target_channel_id,
-                                name=message['reactions']['0']['name'],
+                                name=message['reactions'][0]['name'],
                                 timestamp=response[0][4]
                             )
             # Edit Message
