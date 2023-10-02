@@ -17,21 +17,21 @@ TARGET_BOT_CLIENT = WebClient(token=TARGET_BOT_TOKEN)
 TARGET_USER_CLIENT = WebClient(token=TARGET_USER_TOKEN)
 
 try :
-    # messages = TARGET_CLIENT.conversations_history(channel="C05NKTPNQPM", limit=5)
-    # for message in messages['messages'] :
-    #     print(message)
+    messages = SOURCE_BOT_CLIENT.conversations_history(channel="C05P9MY0JV6", limit=5)
+    for message in messages['messages'] :
+        print(message)
     # SOURCE_CLIENT.chat_update(
     #     channel="C05P9MY0JV6",
     #     ts="",
     #     text="Hello"
     # )
-    last_message = None
-    messages = SOURCE_BOT_CLIENT.conversations_history(channel="C05P9MY0JV6", limit=5)
-    for message in messages['messages'] :
-        if 'client_msg_id' in message :
-            last_message = message
-            break
-    print(last_message)
+    # last_message = None
+    # messages = SOURCE_BOT_CLIENT.conversations_history(channel="C05P9MY0JV6", limit=5)
+    # for message in messages['messages'] :
+    #     if 'client_msg_id' in message :
+    #         last_message = message
+    #         break
+    # print(last_message)
 
 
     # result = TARGET_USER_CLIENT.chat_delete(
