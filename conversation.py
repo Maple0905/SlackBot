@@ -360,7 +360,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                 else :
                     repost_ts = response[0][4]
                     for repost_thread_message in repost_thread_messages :
-                        if 'parent_user_id' in repost_thread_message :
+                        if 'parent_user_id' in repost_thread_message and 'edited' in repost_thread_message :
                             user_response = source_client.users_profile_get(user=repost_thread_message['user'])
                             display_name = user_response["profile"]["real_name"]
                             query = "SELECT * FROM thread_conversation WHERE source_message_ts = %s AND source_channel_id = %s AND source_thread_ts = %s"
