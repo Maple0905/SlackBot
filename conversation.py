@@ -369,6 +369,7 @@ def getThreadMessageHistory(source_token, target_token, source_channel_id, targe
                                     text = display_text + '\n' + message['text']
                                 else :
                                     text = message['text']
+                                print(target_channel_id, ' ', response[0][6], ' ', text)
                                 target_user_client.chat_update(
                                     channel=target_channel_id,
                                     ts=response[0][6],
