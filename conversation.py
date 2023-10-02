@@ -154,6 +154,23 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                 rePost(source_token, target_token, source_channel_id, target_channel_id, messages, response[0][3])
 
             target_client = WebClient(token=target_token)
+            # Add reaction
+            last_client_msg_id = messages[0]['client_msg_id']
+            for message in messages :
+                if 'client_msg_id' in message :
+                    if message['client_msg_id'] == last_client_msg_id :
+                        break
+                    else :
+                        query = "SELECT * FROM conversation WHERE source_channel_id = %s AND source_ts = %s"
+                        DB_CURSOR.execute(query, (source_channel_id, message['ts']))
+                        response = DB_CURSOR.fetchall()
+                        DB_CONN.commit()
+                        if len(response) != 0 :
+                            target_client.reactions_add(
+                                channel=target_channel_id,
+                                name=message['reactions']['0']['name'],
+                                timestamp=response[0][4]
+                            )
             # Edit Message
             edit_messages = []
             for message in messages :
@@ -179,7 +196,6 @@ def getMessageHistory(source_token, target_token, source_channel_id, target_chan
                             ts=response[0][4],
                             text=text
                         )
-
             # Delete Message
             live_messages = []
             for message in messages :
