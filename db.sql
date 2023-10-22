@@ -1,6 +1,6 @@
 /*
 SQLyog Professional v13.1.1 (64 bit)
-MySQL - 10.4.24-MariaDB : Database - slack_test
+MySQL - 10.4.24-MariaDB : Database - slack_bot
 *********************************************************************
 */
 
@@ -12,9 +12,9 @@ MySQL - 10.4.24-MariaDB : Database - slack_test
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`slack_test` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`slack_bot` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 
-USE `slack_test`;
+USE `slack_bot`;
 
 /*Table structure for table `conversation` */
 
@@ -27,7 +27,7 @@ CREATE TABLE `conversation` (
   `source_ts` varchar(32) DEFAULT NULL,
   `target_ts` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=172 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Table structure for table `message_last_status` */
 
@@ -41,7 +41,7 @@ CREATE TABLE `message_last_status` (
   `last_thread_ts` varchar(32) DEFAULT NULL,
   `is_thread` int(10) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=280 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Table structure for table `thread_conversation` */
 
